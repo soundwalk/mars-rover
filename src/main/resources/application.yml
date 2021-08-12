@@ -1,0 +1,8 @@
+api:
+  nasa:
+    mars-rover:
+      base-url: https://api.nasa.gov/mars-photos/api/v1
+
+spring:
+  messages:
+    basename: locale/messages

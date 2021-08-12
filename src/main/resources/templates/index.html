@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <!-- Required meta tags -->
+
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+
+    <!-- Bootstrap icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <!-- Bootstrap icons -->
+
+    <!-- Web title -->
+    <title th:text="#{home.title}"></title>
+    <!-- Web title -->
+</head>
+
+<body class="mt-3" onload="setUp()">
+
+<!-- Navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid pt-1">
+        <a class="navbar-brand" href="/">
+            <h3 th:text="#{navbar.home} + ' &#128640;'"></h3>
+        </a>
+
+        <!-- Localization -->
+        <div class="pe-4">
+            <a href="?lang=hr">
+                <img alt="" class="pe-4" src="/img/croatia.png"/>
+            </a>
+            <a href="?lang=en">
+                <img alt="" src="/img/united-states.png">
+            </a>
+        </div>
+        <!-- Localization -->
+    </div>
+</nav>
+<!-- Navigation bar -->
+
+<!-- Bootstrap container -->
+<div class="container pt-4">
+
+    <!-- Welcome message -->
+    <h1 class="mt-5 display-5" th:text="#{home.welcome-message}"></h1>
+    <!-- Welcome message -->
+
+    <!-- MarsPhotoDTO form -->
+    <form class="border border-info rounded mt-4 ps-4 pb-4 pe-4 pt-2" id="marsPhotoForm"
+          method="get" style="background-color: aliceblue"
+          th:action="@{/}"
+          th:object="${marsPhotoDto}">
+
+        <!-- Rover name -->
+        <div class="form-group">
+            <label class="col-form-label-lg" for="roverSelect" th:text="#{mars.rover.name}"></label>
+            <select class="form-control form-control-lg" id="roverSelect" onchange="this.form.submit();"
+                    th:field="*{rover.name}">
+                <option th:text="Curiosity" th:value="curiosity"></option>
+                <option th:text="Opportunity" th:value="opportunity"></option>
+                <option th:text="Spirit" th:value="spirit"></option>
+            </select>
+        </div>
+        <!-- Rover name -->
+
+        <!-- Sol input -->
+        <div class="form-group">
+            <label class="col-form-label-lg" for="solInput" th:text="#{mars.sol}"></label>
+            <input aria-describedby="solHelp"
+                   class="form-control form-control-lg"
+                   id="solInput"
+                   min="0"
+                   th:placeholder="#{mars.sol.placeholder}"
+                   th:field="*{sol}"
+                   type="number">
+            <small class="form-text text-muted" id="solHelp" th:text="#{mars.sol.description}"></small>
+        </div>
+        <!-- Sol input -->
+
+        <!-- Cameras -->
+        <label class="col-form-label-lg"
+               th:text="${#strings.capitalize(marsPhotoDto.rover.name)} + #{mars.rover.cameras}"></label>
+
+        <div class="row ps-3 pe-3 pb-1"
+             th:each="index : ${#numbers.sequence(0, marsPhotoDto.rover.getValidCameras.size -1, 2)}">
+            <div class="form-check col-sm-12 col-md-6">
+                <input class="form-check-input" th:field="*{selectedCameras}"
+                       th:id="${marsPhotoDto.rover.getValidCameras[index]}"
+                       th:value="${marsPhotoDto.rover.getValidCameras[index]}"
+                       type="checkbox">
+                <label class="form-check-label" th:for="${marsPhotoDto.rover.getValidCameras[index]}"
+                       th:text="${marsPhotoDto.rover.getValidCameras[index].fullName}"></label>
+            </div>
+            <div class="form-check col-sm-12 col-md-6" th:if="${index + 1 < marsPhotoDto.rover.getValidCameras.size}">
+                <input class="form-check-input" th:field="*{selectedCameras}"
+                       th:id="${marsPhotoDto.rover.getValidCameras[index + 1]}"
+                       th:value="${marsPhotoDto.rover.getValidCameras[index + 1]}"
+                       type="checkbox">
+                <label class="form-check-label" th:for="${marsPhotoDto.rover.getValidCameras[index + 1]}"
+                       th:text="${marsPhotoDto.rover.getValidCameras[index + 1].fullName}"></label>
+            </div>
+        </div>
+        <!-- Cameras -->
+
+        <!-- Api Key switch -->
+        <div class="form-check form-switch mt-3 mb-2">
+            <input checked="checked" class="form-check-input" id="marsRoverApiKeySwitch" th:field="*{useDemoKey}"
+                   type="checkbox">
+            <label class="form-check-label" for="marsRoverApiKeySwitch" th:text="#{mars.demokey}"></label>
+            <i class="bi bi-info-square ps-1 text-secondary" data-placement="right" data-toggle="tooltip"
+               th:title="#{mars.demokey.description}"></i>
+        </div>
+        <!-- Api Key switch -->
+
+        <!-- Api key input -->
+        <div class="form-floating mt-3" id="apiKeyInput" style="display: none;">
+            <input aria-describedby="apiKeyHelp" class="form-control"
+                   id="apiKeyInputField"
+                   th:field="*{apiKey}"
+                   th:placeholder="#{mars.key.placeholder}"
+                   type="text">
+            <label for="apiKeyInputField" th:text="#{mars.key.title}"></label>
+            <small class="form-text text-muted" th:text="#{mars.key.description-one}"></small>
+            <a href="https://api.nasa.gov/" target="_blank" th:text="#{general.here}"></a>
+            <small class="form-text text-muted" th:text="#{mars.key.description-two} + ' &#x1F603;'"></small>
+        </div>
+        <!-- Api key input -->
+
+        <!-- Submit form button-->
+        <button class="btn btn-primary btn-lg mt-3" th:text="#{btn.search.photos}" type="submit"></button>
+        <!-- Submit form button-->
+    </form>
+    <!-- MarsPhotoDTO form -->
+
+    <!-- Alert if image gallery is empty -->
+    <div class="alert alert-info mt-4" role="alert" th:if="${photos.isEmpty}"
+         th:text="#{general.unfortunately} + ', ' + ${#strings.capitalize(marsPhotoDto.rover.name)} +
+         ' ' + #{home.gallery.empty} + ' ' + ${marsPhotoDto.sol} + ' &#128577;'">
+    </div>
+    <!-- Alert if image gallery is empty -->
+
+    <!-- Clickable image gallery -->
+    <div class="mt-4"></div>
+    <div class="row" th:each="index : ${#numbers.sequence(0, photos.size()-1, 4)}">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-3 pt-2 pb-2 text-center">
+            <a target="_blank" th:href="${photos[index].imgSrc}">
+                <img alt="" class="img-fluid rounded" th:src="${photos[index].imgSrc}"/>
+            </a>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-3 pt-2 pb-2 text-center" th:if="${index + 1 < photos.size()}">
+            <a target="_blank" th:href="${photos[index + 1].imgSrc}">
+                <img alt="" class="img-fluid rounded" th:src="${photos[index + 1].imgSrc}"/>
+            </a>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-3 pt-2 pb-2 text-center" th:if="${index + 2 < photos.size()}">
+            <a target="_blank" th:href="${photos[index + 2].imgSrc}">
+                <img alt="" class="img-fluid rounded" th:src="${photos[index + 2].imgSrc}"/>
+            </a>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-3 pt-2 pb-2 text-center" th:if="${index + 3 < photos.size()}">
+            <a target="_blank" th:href="${photos[index + 3].imgSrc}">
+                <img alt="" class="img-fluid rounded" th:src="${photos[index + 3].imgSrc}"/>
+            </a>
+        </div>
+    </div>
+    <div class="mb-4"></div>
+    <!-- Clickable image gallery -->
+</div>
+<!-- Bootstrap container -->
+
+<!-- Footer -->
+<footer class="footer bg-info text-white text-center">
+    <!-- Grid container -->
+    <div class="container pt-4">
+        <!-- Section: Social media -->
+        <section class="mb-4">
+            <!-- Github -->
+            <a class="btn btn-link btn-floating btn-lg text-dark m-1" data-mdb-ripple-color="dark"
+               href="https://github.com/soundwalk" role="button" target="_blank">
+                <i class="bi bi-github"></i>
+            </a>
+            <!-- Github -->
+
+            <!-- LinkedIn-->
+            <a class="btn btn-link btn-floating btn-lg text-dark m-1" data-mdb-ripple-color="dark"
+               href="https://www.linkedin.com/in/tintomasic/" role="button" target="_blank">
+                <i class="bi bi-linkedin"></i>
+            </a>
+            <!-- LinkedIn-->
+
+            <!-- Instagram -->
+            <a class="btn btn-link btn-floating btn-lg text-dark m-1" data-mdb-ripple-color="dark"
+               href="https://www.instagram.com/tinovinstgm/" role="button" target="_blank">
+                <i class="bi bi-instagram"></i>
+            </a>
+            <!-- Instagram -->
+
+            <!-- Reddit -->
+            <a class="btn btn-link btn-floating btn-lg text-dark m-1" data-mdb-ripple-color="dark"
+               href="https://www.reddit.com/user/soundwalk_" role="button" target="_blank">
+                <i class="bi bi-reddit"></i>
+            </a>
+            <!-- Reddit -->
+
+            <!-- Facebook -->
+            <a class="btn btn-link btn-floating btn-lg text-dark m-1" data-mdb-ripple-color="dark"
+               href="https://www.facebook.com/tin.tomasic74/" role="button" target="_blank">
+                <i class="bi bi-facebook"></i>
+            </a>
+            <!-- Facebook -->
+        </section>
+        <!-- Section: Social media -->
+    </div>
+    <!-- Grid container -->
+
+    <!-- Copyright -->
+    <div class="text-center p-3 bg-dark"
+         th:text="'&copy; ' + ${#dates.year(#dates.createNow())} + ' ' + #{general.copyright} +' Tin Tomašić'">
+    </div>
+    <!-- Copyright -->
+</footer>
+<!-- Footer -->
+
+<!-- Main JavaScript source -->
+<script src="/js/index.js"></script>
+<!-- Main JavaScript source -->
+</body>
+</html>
